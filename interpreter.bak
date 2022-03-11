@@ -13,7 +13,7 @@
 
 ;; DO NOT EDIT ABOVE THIS LINE =================================================
 
-;;Edited by Zachary Robinson and Nicholas Keng
+;;Edited by Zachary Robinson
 
 (define (desugar [expr : Expr]): Expr
   (type-case Expr expr
@@ -43,7 +43,7 @@
   (hash-set env sym val)
   )
 
-(define (lookup-Env [env : Env][sym : Symbol]): Value ;helper function to lookup a key in an Env
+(define (lookup-Env [env : Env][sym : Symbol]): Value            ;helper function to lookup a key in an Env
   (type-case (Optionof Value) (hash-ref env sym)
     [(some s) s]                       ;entry found
     [(none) (v-str "Entry not found")]);entry not found
@@ -52,6 +52,7 @@
 (define (interp [expr : Expr]): Value
   (interpEnv expr empty-Env)
   )
+
 
 (define (interpEnv [expr : Expr][env : Env]): Value
   (type-case Expr expr
