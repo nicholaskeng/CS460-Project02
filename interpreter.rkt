@@ -24,7 +24,7 @@
 (define (lookup-Env [env : Env][sym : Symbol]): Value ;helper function to lookup a key in an Env
   (type-case (Optionof Value) (hash-ref env sym)
     [(some s) s]                       ;entry found
-    [(none) (v-str "Entry not found")]);entry not found
+    [(none) (raise-error (err-unbound-var sym))]);entry not found
   )
 
 (define (interp [expr : Expr]): Value
@@ -33,7 +33,8 @@
 
 (define (desugar [expr : Expr]): Expr
   (type-case Expr expr
-  {(e-app body val) (e-app (desugar body) (desugar val))}
+  [(e-app body val) (e-app (desugar body) (desugar val))]
+  [(e-lam param body) (e-lam param (desugar body))]  
   [(e-op op l r) (e-op op (desugar l) (desugar r))];operators
   [(e-if c consq alt) (e-if (desugar c) consq alt)];if statements
   [(sugar-and l r) (e-if (desugar l)
@@ -46,7 +47,7 @@
                         (e-if (desugar r);left is false
                               (e-bool #t);right is true
                               (e-bool #f)))];both are false
-  ;[(sugar-let var val body)(insert-Env() )]
+  [(sugar-let var val body)(desugar (e-app (e-lam var (desugar body)) val))]
   [else expr]
   )
  )
@@ -57,6 +58,14 @@
     [(e-str value) (v-str value)];strings
     [(e-bool value)(v-bool value)];bools
     [(e-var name) (lookup-Env env name)];variables
+    [(e-lam param body) (v-fun param body env)]
+    [(e-app func arg)
+     (let* ([func (interpEnv func env)])
+       (let* ([arg (interpEnv arg env)])
+         (if (v-fun? func)
+             (interpEnv (v-fun-body func) (insert-Env env (v-fun-param func) arg))
+             (raise-error (err-not-a-function func))
+                       )))]
 
     [(e-op op l r)
      (let* ([l (interpEnv l env)])(let* ([r (interpEnv r env)])(cond          ;operations, this condition determines what type of operation will be performed

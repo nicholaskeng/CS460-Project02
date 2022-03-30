@@ -12,7 +12,7 @@
 
 ;; DO NOT EDIT ABOVE THIS LINE =================================================
 (define/provide-test-suite student-tests ;; DO NOT EDIT THIS LINE ==========
-;;Edited by Zachary Robinson
+;;Edited by Zachary Robinson and Nicholas Keng
 
   ;; Tests 1-3: Primitive datatypes
   (test-equal? "1: Num primitive" (eval `201) (v-num 201))
@@ -415,6 +415,9 @@
   (test-equal? "Test for looking up a key that is not in the Env"
                (lookup-Env (hash) 'B) (v-str "Entry not found")
   )
+
+  ;;Lam tests
+  ;Zachary Robinson
  )
 ;; DO NOT EDIT BELOW THIS LINE =================================================
 

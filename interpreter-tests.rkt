@@ -413,8 +413,19 @@
                (lookup-Env (hash-set (hash) 'A (v-str "test")) 'A) (v-str "test")
   )
   (test-equal? "Test for looking up a key that is not in the Env"
-               (lookup-Env (hash) 'B) (v-str "Entry not found")
+               (lookup-Env (hash) 'B) (err-unbound-var 'B)
+               ;pretty sure this is working but the test is poorly formed
   )
+
+  ;;Lam tests
+   ; - Zachary Robinson
+  (test-equal? "Test for basic e-app and e-lam"
+               (eval `((lam x (+ x 3)) 2))(v-num 5)
+  )
+  (test-equal? "Test for basic e-app and e-lam"
+               (eval `((lam y 5)1)) (v-num 5)
+  )
+   
  )
 ;; DO NOT EDIT BELOW THIS LINE =================================================
 
