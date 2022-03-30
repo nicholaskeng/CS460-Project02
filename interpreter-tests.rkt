@@ -425,9 +425,8 @@
   (test-equal? "Test for looking up a key in the Env"
                (lookup-Env (hash-set (hash) 'A (v-str "test")) 'A) (v-str "test")
   )
-  (test-equal? "Test for looking up a key that is not in the Env"
-               (lookup-Env (hash) 'B) (err-unbound-var ('B))
-               ;pretty sure this is working but the test is poorly formed
+  (test-raises-interp-error? "Test for looking up a key that is not in the Env"
+               (lookup-Env empty-Env 'b) (err-unbound-var 'b)
   )
 
   ;;Var Lam and App tests
