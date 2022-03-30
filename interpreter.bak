@@ -13,7 +13,23 @@
 
 ;; DO NOT EDIT ABOVE THIS LINE =================================================
 
-;;Edited by Zachary Robinson
+;;Edited by Zachary Robinson and Nicholas Keng
+
+(define empty-Env (hash empty))                                  ;helper alias to create an empty list
+
+(define (insert-Env [env : Env][sym : Symbol][val : Value]): Env ;helper function to insert a key value pair into an Env
+  (hash-set env sym val)
+  )
+
+(define (lookup-Env [env : Env][sym : Symbol]): Value ;helper function to lookup a key in an Env
+  (type-case (Optionof Value) (hash-ref env sym)
+    [(some s) s]                       ;entry found
+    [(none) (v-str "Entry not found")]);entry not found
+  )
+
+(define (interp [expr : Expr]): Value
+  (interpEnv expr empty-Env)
+  )
 
 (define (desugar [expr : Expr]): Expr
   (type-case Expr expr
@@ -32,33 +48,17 @@
                         (e-if (desugar r);left is false
                               (e-bool #t);right is true
                               (e-bool #f)))];both are false
+  ;[(sugar-let var val body)(insert-Env() )]
   [else expr]
   )
  )
   
-
-(define empty-Env (hash empty))                                  ;helper alias to create an empty list
-
-(define (insert-Env [env : Env][sym : Symbol][val : Value]): Env ;helper function to insert a key value pair into an Env
-  (hash-set env sym val)
-  )
-
-(define (lookup-Env [env : Env][sym : Symbol]): Value            ;helper function to lookup a key in an Env
-  (type-case (Optionof Value) (hash-ref env sym)
-    [(some s) s]                       ;entry found
-    [(none) (v-str "Entry not found")]);entry not found
-  )
-
-(define (interp [expr : Expr]): Value
-  (interpEnv expr empty-Env)
-  )
-
-
 (define (interpEnv [expr : Expr][env : Env]): Value
   (type-case Expr expr
     [(e-num value) (v-num value)];numbers
     [(e-str value) (v-str value)];strings
     [(e-bool value)(v-bool value)];bools
+ 
     
     [(e-op op l r)
      (let* ([l (interpEnv l env)])(let* ([r (interpEnv r env)])(cond          ;operations, this condition determines what type of operation will be performed

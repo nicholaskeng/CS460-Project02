@@ -15,28 +15,6 @@
 
 ;;Edited by Zachary Robinson and Nicholas Keng
 
-(define (desugar [expr : Expr]): Expr
-  (type-case Expr expr
-  [(e-num value) (e-num value)];numbers
-  [(e-str value) (e-str value)];strings
-  [(e-bool value)(e-bool value)];bools
-  [(e-op op l r) (e-op op (desugar l) (desugar r))];operators
-  [(e-if c consq alt) (e-if (desugar c) consq alt)];if statements
-  [(sugar-and l r) (e-if (desugar l)
-                         (e-if (desugar r);left is true
-                               (e-bool #t);both are true
-                               (e-bool #f));right is false
-                         (e-bool #f))];left is false
-  [(sugar-or l r) (e-if (desugar l)
-                        (e-bool #t);left is true
-                        (e-if (desugar r);left is false
-                              (e-bool #t);right is true
-                              (e-bool #f)))];both are false
-  [else expr]
-  )
- )
-  
-
 (define empty-Env (hash empty))                                  ;helper alias to create an empty list
 
 (define (insert-Env [env : Env][sym : Symbol][val : Value]): Env ;helper function to insert a key value pair into an Env
@@ -53,12 +31,33 @@
   (interpEnv expr empty-Env)
   )
 
+(define (desugar [expr : Expr]): Expr
+  (type-case Expr expr
+  {(e-app body val) (e-app (desugar body) (desugar val))}
+  [(e-op op l r) (e-op op (desugar l) (desugar r))];operators
+  [(e-if c consq alt) (e-if (desugar c) consq alt)];if statements
+  [(sugar-and l r) (e-if (desugar l)
+                         (e-if (desugar r);left is true
+                               (e-bool #t);both are true
+                               (e-bool #f));right is false
+                         (e-bool #f))];left is false
+  [(sugar-or l r) (e-if (desugar l)
+                        (e-bool #t);left is true
+                        (e-if (desugar r);left is false
+                              (e-bool #t);right is true
+                              (e-bool #f)))];both are false
+  ;[(sugar-let var val body)(insert-Env() )]
+  [else expr]
+  )
+ )
+  
 (define (interpEnv [expr : Expr][env : Env]): Value
   (type-case Expr expr
     [(e-num value) (v-num value)];numbers
     [(e-str value) (v-str value)];strings
     [(e-bool value)(v-bool value)];bools
-    
+    [(e-var name) (lookup-Env env name)];variables
+
     [(e-op op l r)
      (let* ([l (interpEnv l env)])(let* ([r (interpEnv r env)])(cond          ;operations, this condition determines what type of operation will be performed
                      [(op-plus? op)(if (v-num? l)             ;check if the left type is correct
