@@ -47,7 +47,7 @@
                         (e-if (desugar r);left is false
                               (e-bool #t);right is true
                               (e-bool #f)))];both are false
-  [(sugar-let var val body)(desugar (e-app (e-lam var (desugar body)) val))]
+  [(sugar-let var val body)(e-app (e-lam var (desugar body)) val)]
   [else expr]
   )
  )

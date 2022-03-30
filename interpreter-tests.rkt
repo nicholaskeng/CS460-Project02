@@ -12,6 +12,7 @@
 
 ;; DO NOT EDIT ABOVE THIS LINE =================================================
 (define/provide-test-suite student-tests ;; DO NOT EDIT THIS LINE ==========
+  
 ;;Edited by Zachary Robinson and Nicholas Keng
 
   ;; Tests 1-3: Primitive datatypes
@@ -252,9 +253,9 @@
                              (err-bad-arg-to-op (op-num-eq) (v-str "dog")))
 
   ;; New Tests for PA2 =========================================================
-   ; - Jesica Wood
 
-  ;AND tests
+  ;; AND and OR tests
+   ; - Jesica Wood
   (test-equal? "works with simple desugaring and"
                (eval `(and true true)) (v-bool true))
 
@@ -273,19 +274,16 @@
     (test-equal? "works with nested AND"
                  (eval `(and (and (and (num= 1 1) (str= "p" "p")) true) false)) (v-bool false))
 
-   ;OR tests
-
     (test-equal? "works with desugaring or"
                (eval `(or true false)) (v-bool #t))
 
-  (test-equal? "works with desugaring num= or"
+    (test-equal? "works with desugaring num= or"
                (eval `(or (num= 1 1) false)) (v-bool #t))
 
-  (test-equal? "works with nested OR"
+    (test-equal? "works with nested OR"
                  (eval `(or (or (or (num= 1 1) (str= "p" "p")) true) false)) (v-bool true))
   
    ; - Christopher
-  ;;AND
   (test-equal? "AND using num= and str="
                (eval `(and (num= 1 1)(str= "hello" "hello")))
                (v-bool #t))
@@ -298,7 +296,6 @@
   (test-equal? "AND using recursion"
                (eval `(and (str= (++ "race" "car") "racecar") (and (num= 1 1) (str= "eq" "eq"))))
                (v-bool #t))
-  ;;OR
   (test-equal? "OR using num= and str="
                (eval `(or (num= (+ 4 1) (+ 3 2))(str= (++ "cor" "rect") (++ "co" (++ "rre" "ct")))))
                (v-bool #t))
@@ -312,12 +309,13 @@
   (test-equal? "Test if case for numbers"
                (eval `{ +   1   (if (and (num= 1 1) (num= 2 2)) 1 2)      }) (v-num 2)
   )
-   ; - Guy
+  
+   ; - Guy Greenleaf
   (test-equal? "Test basic desugar AND"
                (eval `{and true true}) (v-bool #t)
   )
 
-    (test-equal? "Test basic desugar AND returns false "
+   (test-equal? "Test basic desugar AND returns false "
                (eval `{and true false}) (v-bool #f)
   )
   
@@ -325,7 +323,7 @@
                (eval `{or false true}) (v-bool #t)) 
 
   
-   (test-equal? "Test IF desugar AND returns true"
+  (test-equal? "Test IF desugar AND returns true"
                (eval `{if (and true true) true false}) (v-bool #t)
   )
 
@@ -361,7 +359,7 @@
                (eval `{if (or true "abc") true false}) (v-bool #t)
   ) 
 
-    (test-equal? "Test if case for numbers"
+  (test-equal? "Test if case for numbers"
                (eval `{+ 1(if (and (num= 1 1) (num= 2 2)) 1 2)}) (v-num 2)
   )
 
@@ -373,7 +371,6 @@
                (eval `{and "cat" true}) (err-if-got-non-boolean (v-str "cat"))
   ) 
 
-  
   (test-raises-interp-error? "Test desugar OR bad bool second arg"
                (eval `{or false "abc"}) (err-if-got-non-boolean (v-str "abc"))
   ) 
@@ -381,7 +378,23 @@
  (test-raises-interp-error? "Test desugar OR bad bool first arg"
                (eval `{or "cat" true}) (err-if-got-non-boolean (v-str "cat"))
   )
-  ;;AND and OR tests
+  
+  (test-equal? "NESTED TEST: desugar AND - should return true"
+               (eval `{if (and (and (and (and true true) (and true true)) (and (and true true) (and true true))) (and (and true true) (and true true))) true false}) (v-bool #t)
+  )
+
+  (test-equal? "NESTED TEST: desugar OR - should return true"
+               (eval `{if (or (or (or (or false true) (or false true)) (or (or false true) (or false true))) (or (or false true) (or false true))) true false}) (v-bool #t)
+  ) 
+  
+  (test-equal? "NESTED TEST: desugar AND - should return false"
+               (eval `{if (and (and (and (and (and true false) (and true false)) (and (and true false) (and true false))) (and (and (and true false) (and true false)) (and (and true false) (and true false)))) (and (and (and true false) (and true false)) (and (and true false) (and true false)))) true false}) (v-bool #f)
+  )
+
+  (test-equal? "NESTED TEST: desugar OR - should return false"
+               (eval `{if (or (or (or (or false false) (or false false)) (or (or false false) (or false false))) (or (or (or false false) (or false false)) (or (or false false) (or false false)))) true false}) (v-bool #f)
+  )
+  
    ; - Zachary Robinson
 
   (test-equal? "Test AND short-circuit evaluation"
@@ -413,18 +426,105 @@
                (lookup-Env (hash-set (hash) 'A (v-str "test")) 'A) (v-str "test")
   )
   (test-equal? "Test for looking up a key that is not in the Env"
-               (lookup-Env (hash) 'B) (err-unbound-var 'B)
+               (lookup-Env (hash) 'B) (err-unbound-var ('B))
                ;pretty sure this is working but the test is poorly formed
   )
 
-  ;;Lam tests
+  ;;Var Lam and App tests
    ; - Zachary Robinson
-  (test-equal? "Test for basic e-app and e-lam"
+  (test-equal? "Test for e-app and e-lam from brown specs"
                (eval `((lam x (+ x 3)) 2))(v-num 5)
   )
-  (test-equal? "Test for basic e-app and e-lam"
+  (test-equal? "Test for e-app and e-lam from brown specs"
                (eval `((lam y 5)1)) (v-num 5)
   )
+
+  ;David Holstedt
+  (test-equal? "Can create a function via lam and call it as first argument"
+               (eval `( (lam x (+ x 1) ) 10) ) (v-num 11)
+  )
+
+  (test-equal? "Can use a function created by lambda as an argument in another lambda function"
+               (eval `(
+                       (lam f (f (f (f 2))))
+                       (lam x (+ x 4))
+                       )
+                     )
+               (v-num 14)
+  )
+  
+  (test-equal? "meaning of variables changes depending on scope"
+               (eval `(
+                       (lam x ( (lam x (+ x 3)) x))
+                       2))
+               (v-num 5)
+  )
+  
+  (test-equal? "Ackermannesqe lambda hell"
+               (eval `(
+                       ((lam y ((lam x (x x)) (y y)))
+                        (lam x x))
+                       56))
+               (v-num 56)
+  )
+  
+  (test-raises-interp-error? "Using a non-function as a function throws an error"
+                             (eval `{"xerophytic" 5})
+                             (err-not-a-function (v-str "xerophytic"))
+  )
+
+  (test-raises-interp-error? "Trying to interpret a never-defined variable throws an error"
+                             (eval `{+ a 8000})
+                             (err-unbound-var 'a)
+  )
+
+  (test-raises-interp-error? "Trying to interpret an out-of scope variable throws an error"
+                             (eval `{ (lam x (+ x 5)) x})
+                             (err-unbound-var 'x)
+  )
+
+  ;;Let tests
+   ; - Rommel Ravanera 
+
+
+  (test-equal? "Test LET using string"
+               (eval `{let (x "this") x}) (v-str "this"))
+  
+  (test-equal? "Test LET using strings/append"
+               (eval `{let (x "te") (++ x "st")}) (v-str "test"))
+
+  (test-equal? "Test LET using strings/append - nested"
+               (eval `{let (a "some") (let (b "thing") (++ a b))}) (v-str "something"))
+
+  (test-equal? "Test LET using strings/append - nested part 2"
+               (eval `{let (a "another") (let (b " ") (let (c "test") (++ a (++ b c))))}) (v-str "another test"))
+
+  (test-equal? "Test LET using strings/append - deeply nested (idea borrowed and adapted from Evan's post as the credit goes to him, thanks Evan)"
+               (eval `{let (a "how") (let (b " far ") (let (c "can ") (let (d "we") (let (e " go") (let (f "?") (++ a (++ b (++ c (++ d (++ e f))))))))))}) (v-str "how far can we go?"))
+
+  (test-equal? "Test LET using bool"
+               (eval `{let (x true) x}) (v-bool #t))
+
+  (test-equal? "Test LET with AND using boolean"
+               (eval `{let (x true) (and (num= (+ 2 0) (+ 1 1)) x)}) (v-bool #t))
+
+  (test-equal? "Test LET with AND using boolean part 2"
+               (eval `{let (x true) (let (y false) (and (and (num= (+ 1 18) (+ 9 10)) x) y))}) (v-bool #f))
+
+  (test-equal? "Test LET with AND using addition and boolean"
+               (eval `{let (x true) (and (num= (+ 2 1) (+ 0 3)) x)}) (v-bool #t))
+
+  (test-equal? "Test LET with OR using boolean"
+               (eval `{let (x true) (let (y false)(or x y))}) (v-bool #t))
+
+  (test-equal? "Test LET with OR using boolean part 2"
+               (eval `{let (x false) (let (y false) (or x y))}) (v-bool #f))
+
+  (test-equal? "Test LET with AND/OR using addition and boolean"
+               (eval `{let (x true) (let (y false) (and x (or (num= (+ 5 5) (+ 7 3)) y)))}) (v-bool #t))
+
+  (test-equal? "Test LET with AND/OR using addition and boolean part 2"
+               (eval `{let (x true) (let (y false) (or (and (num= (+ 67 33) (+ 25 75)) x) y))}) (v-bool #t))
    
  )
 ;; DO NOT EDIT BELOW THIS LINE =================================================
