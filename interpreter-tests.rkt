@@ -12,8 +12,7 @@
 
 ;; DO NOT EDIT ABOVE THIS LINE =================================================
 (define/provide-test-suite student-tests ;; DO NOT EDIT THIS LINE ==========
-  
-;;Edited by Zachary Robinson and Nicholas Keng
+  ;;Edited by Zachary Robinson and Nicholas Keng after line 254
 
   ;; Tests 1-3: Primitive datatypes
   (test-equal? "1: Num primitive" (eval `201) (v-num 201))
@@ -262,17 +261,17 @@
     (test-equal? "works with desugaring and with num= expression"
                (eval `(and (num= 1 2) true)) (v-bool false))
 
-      (test-equal? "works with desugaring and with str= expression"
+    (test-equal? "works with desugaring and with str= expression"
                (eval `(and (str= "hi" "hi") true)) (v-bool true))
   
-      (test-equal? "works with desugaring and with 2 str= expression"
+    (test-equal? "works with desugaring and with 2 str= expression"
                (eval `(and (str= "hi" "hi") (str= "i" "hi"))) (v-bool false))
 
-      (test-equal? "works with desugaring and with 2 num= expression"
+    (test-equal? "works with desugaring and with 2 num= expression"
                (eval `(and (num= 1 1) (num= 100 100))) (v-bool true))
   
     (test-equal? "works with nested AND"
-                 (eval `(and (and (and (num= 1 1) (str= "p" "p")) true) false)) (v-bool false))
+               (eval `(and (and (and (num= 1 1) (str= "p" "p")) true) false)) (v-bool false))
 
     (test-equal? "works with desugaring or"
                (eval `(or true false)) (v-bool #t))
@@ -281,7 +280,7 @@
                (eval `(or (num= 1 1) false)) (v-bool #t))
 
     (test-equal? "works with nested OR"
-                 (eval `(or (or (or (num= 1 1) (str= "p" "p")) true) false)) (v-bool true))
+               (eval `(or (or (or (num= 1 1) (str= "p" "p")) true) false)) (v-bool true))
   
    ; - Christopher
   (test-equal? "AND using num= and str="
@@ -404,31 +403,6 @@
                (eval `{or true "dog"}) (v-bool #t)
   )
 
-  
-  ;;Environment tests
-   ; - Zachary Robinson
-  (test-equal? "Test for creating an empty environment"
-               (v-bool (hash-empty? empty-Env)) (v-bool #t)
-  )
-  (test-equal? "Test for inserting a v-str into an empty environment )"
-               (v-bool (hash-empty? (insert-Env (hash) 'A (v-str "test")))) (v-bool #f)
-  )
-  (test-equal? "Test for inserting a v-num into an empty environment"
-               (v-bool (hash-empty? (insert-Env (hash) 'A (v-num 4)))) (v-bool #f)
-  )
-  (test-equal? "Test for inserting a v-bool into an empty environment"
-               (v-bool (hash-empty? (insert-Env (hash) 'A (v-bool #t)))) (v-bool #f)
-  )
-  (test-equal? "Test for inserting the correct value into an empty environment"
-               (hash-ref (insert-Env (hash) 'A (v-str "test")) 'A) (v-str "test")
-  )
-  (test-equal? "Test for looking up a key in the Env"
-               (lookup-Env (hash-set (hash) 'A (v-str "test")) 'A) (v-str "test")
-  )
-  (test-raises-interp-error? "Test for looking up a key that is not in the Env"
-               (lookup-Env empty-Env 'b) (err-unbound-var 'b)
-  )
-
   ;;Var Lam and App tests
    ; - Zachary Robinson
   (test-equal? "Test for e-app and e-lam from brown specs"
@@ -524,7 +498,20 @@
 
   (test-equal? "Test LET with AND/OR using addition and boolean part 2"
                (eval `{let (x true) (let (y false) (or (and (num= (+ 67 33) (+ 25 75)) x) y))}) (v-bool #t))
-   
+
+  ; Zachary Robinson and Nicholas Keng
+
+  (test-equal? "Test LET with sugar in variable assignment"
+               (eval `{let (x (and true false)) x}) (v-bool #f)
+  )
+
+  (test-equal? "Test LET with sugar in the body"
+               (eval `{let (x true) (and x x)}) (v-bool #t)
+  )
+
+  (test-equal? "Test LET with sugar in variable assignment and the body"
+               (eval `{let (x (and true false)) (and x x)}) (v-bool #f)
+  )
  )
 ;; DO NOT EDIT BELOW THIS LINE =================================================
 

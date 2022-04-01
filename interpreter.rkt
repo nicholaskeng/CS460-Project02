@@ -35,8 +35,8 @@
   (type-case Expr expr
   [(e-app body val) (e-app (desugar body) (desugar val))]
   [(e-lam param body) (e-lam param (desugar body))]  
-  [(e-op op l r) (e-op op (desugar l) (desugar r))];operators
-  [(e-if c consq alt) (e-if (desugar c) consq alt)];if statements
+  [(e-op op l r) (e-op op (desugar l) (desugar r))]
+  [(e-if c consq alt) (e-if (desugar c) consq alt)]
   [(sugar-and l r) (e-if (desugar l)
                          (e-if (desugar r);left is true
                                (e-bool #t);both are true
@@ -47,23 +47,23 @@
                         (e-if (desugar r);left is false
                               (e-bool #t);right is true
                               (e-bool #f)))];both are false
-  [(sugar-let var val body)(e-app (e-lam var (desugar body)) val)]
+  [(sugar-let var val body)(e-app (e-lam var (desugar body)) (desugar val))]
   [else expr]
   )
  )
   
 (define (interpEnv [expr : Expr][env : Env]): Value
   (type-case Expr expr
-    [(e-num value) (v-num value)];numbers
-    [(e-str value) (v-str value)];strings
-    [(e-bool value)(v-bool value)];bools
-    [(e-var name) (lookup-Env env name)];variables
+    [(e-num value) (v-num value)]
+    [(e-str value) (v-str value)]
+    [(e-bool value)(v-bool value)]
+    [(e-var name) (lookup-Env env name)]
     [(e-lam param body) (v-fun param body env)]
     [(e-app func arg)
      (let* ([func (interpEnv func env)])
        (let* ([arg (interpEnv arg env)])
          (if (v-fun? func)
-             (interpEnv (v-fun-body func) (insert-Env env (v-fun-param func) arg))
+             (interpEnv (v-fun-body func) (insert-Env env (v-fun-param func) arg));evaluate the body with the evaluated argument in scope
              (raise-error (err-not-a-function func))
                        )))]
 
